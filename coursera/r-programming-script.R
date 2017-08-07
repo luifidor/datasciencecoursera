@@ -42,7 +42,11 @@ x
 
 # connect R to SQL Server 
 ## https://www.red-gate.com/simple-talk/sql/reporting-services/making-data-analytics-simpler-sql-server-and-r/
+## https://support.rstudio.com/hc/en-us/articles/214510788-Setting-up-R-to-connect-to-SQL-Server-
 install.packages("RODBC")
 library(RODBC)
 ??RODBC
 cn <-odbcDriverConnect("driver=SQL Server;server=swbbesqld01.wbad.group;database=minibid; uid=minibid_submit; pwd=Wbad2016")
+bidlog <- sqlFetch(cn, 'fact.bidlog', colnames=FALSE,
+                             rows_at_time=1000)
+data
