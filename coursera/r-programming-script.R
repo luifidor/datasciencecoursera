@@ -49,4 +49,9 @@ library(RODBC)
 cn <-odbcDriverConnect("driver=SQL Server;server=swbbesqld01.wbad.group;database=minibid; uid=minibid_submit; pwd=Wbad2016")
 bidlog <- sqlFetch(cn, 'fact.bidlog', colnames=FALSE,
                              rows_at_time=1000)
-data
+hist(as.numeric(bidlog$count_processing_days), xlim=c(0,30),breaks = 7)
+
+## Analyze the distribution of processing days across years
+hist(as.numeric(bidlog[(bidlog$count_processing_days < 100 & bidlog$close_date_cy == 2015), ]$count_processing_days), ylim=c(0, 0.05), probability = TRUE)
+hist(as.numeric(bidlog[(bidlog$count_processing_days < 100 & bidlog$close_date_cy == 2016), ]$count_processing_days), ylim=c(0, 0.05), probability = TRUE)
+hist(as.numeric(bidlog[(bidlog$count_processing_days < 100 & bidlog$close_date_cy == 2017), ]$count_processing_days),  ylim=c(0, 0.05), probability = TRUE)
