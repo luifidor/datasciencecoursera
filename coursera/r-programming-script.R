@@ -18,3 +18,31 @@ table(x)
 unclass(x)
 
 x<-factor(c("YES", "NO", "YES", "YES", "NO"), levels=c("YES", "NO"))
+
+
+## missing values
+
+x<-c(1,2,NA,4)
+is.na(x)
+
+x<-c(1,2,NA,NaN)
+is.na(x)
+is.nan(x)
+
+## data frames
+x <- data.frame (foo = 1:4, bar = c(T, T, F, F))
+x
+nrow(x)
+ncol(x)
+
+## names - is it also possible to assign names to vectors and list
+x<-1:3
+names(x) <- c("foo", "bar", "do")
+x
+
+# connect R to SQL Server 
+## https://www.red-gate.com/simple-talk/sql/reporting-services/making-data-analytics-simpler-sql-server-and-r/
+install.packages("RODBC")
+library(RODBC)
+??RODBC
+cn <-odbcDriverConnect("driver=SQL Server;server=swbbesqld01.wbad.group;database=minibid; uid=minibid_submit; pwd=Wbad2016")
