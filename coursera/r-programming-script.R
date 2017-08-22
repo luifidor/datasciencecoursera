@@ -117,6 +117,7 @@ while (count < 10) {
 }
 
 
+## Column definitions
 
 add2 <- function(x,y) {
         x + y
@@ -140,10 +141,50 @@ columnmean <- function (y, removeNA = TRUE) {
         
 }
 
+# dates
+
+x<- as.Date()
 
 
+# LAPPLY
 
+x <- list(a= 1:5, b = rnorm(10))
+x
+lapply(x, mean)
 
+mean (1:5)
+
+#apply
+
+x<- matrix(rnorm(200), 20, 10)
+x
+apply(x, 1, quantile, probs = c(0.25,0.75))
+
+rnorm (2 * 2 * 3)
+
+#range
+
+range(c(1:5, 6))
+x<-c(1:5, 6)
+y<-gl(3, 2)
+lapply(split(x, y), mean)
+
+####################################################################################################################
+####################################################################################################################
+
+#bidlog example
+#mean savings per bid type per month
+install.packages("matrixStats")
+library(matrixStats)
+b_reason <- bidlog$reason
+b_member <- bidlog$member
+interaction(b_member, b_reason)
+b_reason_means <- sapply(split(bidlog,list(b_member, b_reason), drop = TRUE), function(x) colMeans(x[, c("award_localdn_var", "localdn_savings_rate", "count_processing_days", "count_analysis_scenarios")], na.rm = TRUE))
+write.table(b_reason_means, 'clipboard', sep='\t')
+
+b_reasons_variance <- lapply(b_reason, function(x) colSds(x[, c("award_localdn_var", "localdn_savings_rate", "count_processing_days", "count_analysis_scenarios")]))
+
+print (lapply)
 # connect R to SQL Server 
 ## https://www.red-gate.com/simple-talk/sql/reporting-services/making-data-analytics-simpler-sql-server-and-r/
 ## https://support.rstudio.com/hc/en-us/articles/214510788-Setting-up-R-to-connect-to-SQL-Server-
@@ -173,3 +214,56 @@ bidlog[which.max(bidlog$award_localdn_var),]
 install.packages('pastecs')
 library (Hmisc)
 describe(bidlog$award_localdn_var)
+
+
+#####################################################################
+# Exam week 2
+#####################################################################
+
+#https://stackoverflow.com/questions/15897236/whats-the-equivalent-to-excels-left-and-right-in-r
+
+right = function (string, char){
+        substr(string,nchar(string)-(char-1),nchar(string))
+}
+
+left = function (string,char){
+        substr(string,1,char)
+}
+
+polluteantmean <- function(directory, pollutant, id = 1:332) {
+        
+        # directory: character vector of length 1 indicating the location of the CSV files
+        
+        # pollutant is a character vector indicating hte name of the pollutant
+        
+        # id is an integer vector indicating the monito id numbers
+        
+        x <- NULL
+        
+        for (i in id) {
+           filename <- right(paste("000", i, sep=""), 3)
+           #print(paste(directory, filename , ".csv",sep="",collapse=""))
+           y <- read.csv(file=paste(directory, filename , ".csv",sep="",collapse=""))
+           #y <- cbind(y, id=i)
+           if (!is.null(x)) {
+                x <- rbind(x, y)
+           } else {
+                x <- y
+           }
+           
+        }
+        #mean(x[, pollutant], na.rm = TRUE)
+        x
+}
+
+#a <- "\\wbad.group\dfs_WB\10_Home\UWBBENOELF\DATA\Desktop\GIT Folder\coursera\specdata\"
+
+a <- "\\\\wbad.group\\dfs_WB\\10_Home\\UWBBENOELF\\DATA\\Desktop\\GIT Folder\\coursera\\specdata\\"
+b <- "nitrate"
+i <- 70:72
+
+polluteantmean(a, "nitrate", 70:72)
+polluteantmean(a, "nitrate", 23)
+polluteantmean(a, "sulfate", 1:10)
+system.time(polluteantmean(a, "nitrate", 1:332))
+        
