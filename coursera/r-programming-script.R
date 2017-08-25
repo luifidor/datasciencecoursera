@@ -252,8 +252,8 @@ polluteantmean <- function(directory, pollutant, id = 1:332) {
            }
            
         }
-        #mean(x[, pollutant], na.rm = TRUE)
-        x
+        mean(x[, pollutant], na.rm = TRUE)
+        #x
 }
 
 #a <- "\\wbad.group\dfs_WB\10_Home\UWBBENOELF\DATA\Desktop\GIT Folder\coursera\specdata\"
@@ -266,4 +266,155 @@ polluteantmean(a, "nitrate", 70:72)
 polluteantmean(a, "nitrate", 23)
 polluteantmean(a, "sulfate", 1:10)
 system.time(polluteantmean(a, "nitrate", 1:332))
+
+
+all_samples <- function(directory =  "\\\\wbad.group\\dfs_WB\\10_Home\\UWBBENOELF\\DATA\\Desktop\\GIT Folder\\coursera\\specdata\\", id = 1:3) {
         
+        # directory: character vector of length 1 indicating the location of the CSV files
+        
+        # id is an integer vector indicating the monito id numbers
+        
+        x <- NULL
+        
+        for (i in id) {
+                filename <- right(paste("000", i, sep=""), 3)
+                
+                y <- read.csv(file=paste(directory, filename , ".csv",sep="",collapse=""))
+                
+                
+                if (!is.null(x)) {
+                        x <- rbind(x, y)
+                } else {
+                        x <- y
+                }
+                
+                
+        }
+
+        x
+         #calculate using tapply a sum of the trues, complete cases
+         #z <-tapply ((!is.na(x$sulfate) & !is.na(x$nitrate)),x$ID, sum)
+         # transpose to deliver the right format
+        #as.data.frame(t(t(z)))
+}
+
+##################################################################
+
+
+complete_samples <- function(directory =  "\\\\wbad.group\\dfs_WB\\10_Home\\UWBBENOELF\\DATA\\Desktop\\GIT Folder\\coursera\\specdata\\", id = 1:3) {
+        
+        # directory: character vector of length 1 indicating the location of the CSV files
+        
+        # id is an integer vector indicating the monito id numbers
+        
+        x <- NULL
+        
+        for (i in id) {
+                filename <- right(paste("000", i, sep=""), 3)
+                
+                y <- read.csv(file=paste(directory, filename , ".csv",sep="",collapse=""))
+                
+                
+                
+                if (!is.null(x)) {
+                        x <- rbind (x, c(i, sum(complete.cases(y$sulfate, y$nitrate))))
+                } else {
+                        x <- c(i, sum(complete.cases(y$sulfate, y$nitrate)))
+                }
+                
+        }
+        colnames(x) <- c("id", "nobs")
+        rownames(x) <- id
+        as.data.frame(x)
+        #calculate using tapply a sum of the trues, complete cases
+        #z <-tapply ((!is.na(x$sulfate) & !is.na(x$nitrate)),x$ID, sum)
+        # transpose to deliver the right format
+        #as.data.frame(t(t(z)))
+}
+
+corr_wrong <- function(directory =  "\\\\wbad.group\\dfs_WB\\10_Home\\UWBBENOELF\\DATA\\Desktop\\GIT Folder\\coursera\\specdata\\", threshold = 0) {
+        
+        #threshold is a numeric vector of length 1 indicating th enumber of completely observed observations
+        
+        id <- 1:332
+        
+        
+        correlation <- NULL
+        y <- all_samples (directory, id)
+        comp <- complete_samples (directory, id)
+        
+        for (i in id) {
+                if (!is.null(x)) {
+                        x <- rbind (x, c(i, sum(complete.cases(y$sulfate, y$nitrate))))
+                } else {
+                        x <- c(i, sum(complete.cases(y$sulfate, y$nitrate)))
+                }
+                
+                
+                
+                if (temp > threshold) {
+                        x <- subset(y, complete.cases(y$sulfate, y$nitrate))        
+                        correlation <- cor(x$sulfate, x$nitrate)
+                }
+                
+                correlation
+        }
+        
+corr <- function(id = 1:3, directory =  "\\\\wbad.group\\dfs_WB\\10_Home\\UWBBENOELF\\DATA\\Desktop\\GIT Folder\\coursera\\specdata\\", threshold = 0) {
+        
+        #threshold is a numeric vector of length 1 indicating th enumber of completely observed observations
+     
+        correlation <- NULL
+        y <- all_samples (directory, id)
+        x <- subset(y, complete.cases(y$sulfate, y$nitrate))  
+        comp <- complete_samples (directory, id)
+       
+        for (i in id) {
+                if (comp[i,"nobs"] > threshold) {
+                        correlation <- append(correlation , cor(x[x$ID == i,]$sulfate, x[x$ID == i,]$nitrate))
+                }
+        }
+        
+        correlation
+}
+
+polluteantmean(directory,"nitrate", 1:332)
+cc <- complete(directory, c(6, 10, 20, 34, 100, 200, 310))
+cc <- complete(directory, 54:55)
+set.seed(42)
+cc <- complete(directory, 332:1)
+use <- sample(332, 10)
+cc[use, "nobs"]
+
+#8)
+cr <- corr(1:332)                
+cr <- sort(cr)                
+set.seed(868)                
+out <- round(cr[sample(length(cr), 5)], 4)
+print(out)
+
+#9)
+cr <- corr(1:332, ,129)                
+cr <- sort(cr)                
+n <- length(cr)                
+set.seed(197)                
+out <- c(n, round(cr[sample(n, 5)], 4))
+print(out)
+
+#10)
+cr <- corr(1:332, ,  2000)                
+n <- length(cr)                
+cr <- corr(1:332, , 1000)                
+cr <- sort(cr)
+print(c(n, round(cr, 4)))
+
+cr <- corr(1:332,,400)
+##################################################################
+aggregate(u$ID, FUN=sum, data=subset(temp, !is.na(u$sulfate) & !is.na(u$nitrate)))
+
+
+o <- cbind(u, !is.na(u$sulfate) & !is.na(u$nitrate))
+colnames(o)[5] <- "Complete"
+com <- subset(o, o$Complete == TRUE)
+sapply(split(com$Complete, com$ID), sum)
+
