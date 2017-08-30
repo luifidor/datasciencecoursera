@@ -191,9 +191,21 @@ print (lapply)
 install.packages("RODBC")
 library(RODBC)
 ??RODBC
+
 cn <-odbcDriverConnect("driver=SQL Server;server=swbbesqld01.wbad.group;database=minibid; uid=minibid_submit; pwd=Wbad2016")
 bidlog <- sqlFetch(cn, 'fact.bidlog', colnames=FALSE,
                    rows_at_time=1000)
+
+cn <-odbcDriverConnect("driver=SQL Server;server=tcp:swbbesqlp01.wbad.group,1434;database=minibid; uid=wbad_report; pwd=Wbad2016")
+bidlog <- sqlFetch(cn, 'fact.bidlog', colnames=FALSE,
+                   rows_at_time=1000)
+
+cn <-odbcDriverConnect("driver=SQL Server;server=tcp:swbbesqlp01.wbad.group,1434;database=minibid; uid=wbad_report; pwd=Wbad2016")
+bidline <- sqlFetch(cn, 'fact.bidanalysis_line_detail', colnames=FALSE,
+                   rows_at_time=1000)
+
+summary(bidline$vendor)
+
 hist(as.numeric(bidlog$count_processing_days), xlim=c(0,30),breaks = 7)
 
 ## Analyze the distribution of processing days across years
