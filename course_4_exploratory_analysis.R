@@ -113,7 +113,7 @@ with(bidlog, {
 ## Lattice plot
 reset_par()
 library(lattice)
-xyplot(award_localdn_var  ~ count_processing_days  | member, data = data, layout = c(2, 1))
+xyplot(award_localdn_var  ~ count_processing_days  | member * reason, data = data, layout = c(2, 1))
 
 ## ggplot2
 
@@ -180,15 +180,73 @@ sapply (analysis, function(x) {
 
 levels(factor(analysis$bid_id))
 
-
+consolidated[, c("bid_id", "award.x")]
 
 bid_ids <- levels(factor(inc$bid_id))
 inc[, c("ndc", "vendor", "award", "indirect_cost", "contract_cost", "locadn_cost", "allindn_cost")]
 for (id in bid_ids) {
         
-        
-        
 }
+
+#leeson 1 week 2
+library(lattice)
+xyplot(localdn_savings_rate )
+
+xyplot(localdn_savings_rate  ~ count_processing_days  | factor(member) * factor(reason), data = data, layout = c(2, 2), ylim = c(0, 1))
+
+xyplot(localdn_savings_rate  ~ count_processing_days  | factor(member) * factor(reason) * factor(open_date_cy)
+       , xlabel = "Count of bid processing days"
+       , ylabel = "Percentage of discount"
+       , data = bidlog[bidlog$reason == "MINIBID" & bidlog$open_date_cy > 2014 & bidlog$count_processing_days <51, ],layout = c(2, 3), ylim = c(0, 1), panel =function(x, y, ...) {
+               panel.xyplot (x, y, ...)
+               panel.abline (h = median(y), lty =2)
+               #panel.abline (h = mean(y), lty =1)
+               panel.lmline (x, y, col = 2, lty =1)
+               panel.abline (v= median(x), lty =1)
+               
+       })
+
+xyplot(localdn_savings_rate  ~ count_processing_days  | factor(member) * factor(reason) * factor(open_date_cy)
+       , xlabel = "Count of bid processing days"
+       , ylabel = "Percentage of discount"
+       , data = bidlog[bidlog$reason == "COMPETITIVE" & bidlog$open_date_cy > 2014 & bidlog$count_processing_days <51, ],layout = c(1, 3), ylim = c(0, 1), panel =function(x, y, ...) {
+               panel.xyplot (x, y, ...)
+               panel.abline (h = median(y), lty =2)
+               #panel.abline (h = mean(y), lty =1)
+               panel.lmline (x, y, col = 2, lty =1)
+               panel.abline (v= median(x), lty =1)
+               
+       })
+       
+# GGPLOT2
+library(ggplot2)
+str(mpg)
+qplot (displ, hwy, data = mpg)
+
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , color = member)
+
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , geom = c("point", "smooth")
+      , color = member)
+
+qplot(localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , fill = member)
+qplot(localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , geom = "density"
+      , color = member)
+
+qplot(count_processing_days, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , fill = member)
+
+#Pretty cool one
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , geom = c("point", "smooth")
+      , facets = open_date_cy~ member)
+
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "COMPETITIVE" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
+      , geom = c("point", "smooth")
+      , facets = open_date_cy ~ member)
 
 
 
