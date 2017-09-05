@@ -248,5 +248,32 @@ qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason =
       , geom = c("point", "smooth")
       , facets = open_date_cy ~ member)
 
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID",])
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID",], shape = member)
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID",], color = member)
+
+qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID",]
+      , color = member, facets = .~member) + geom_smooth(method = "loess")
+
+# ggplot2
+
+g <- ggplot(bidlog, aes(count_processing_days,localdn_savings_rate))
+#g + geom_point(color = "steelblue", size = 4, alpha =1/2) + geom_smooth() + facet_grid(member~.) + coord_cartesian(ylim = c(0, 1), xlim =c(0,50)) 
+g + geom_point(aes(color = reason), size = 4, alpha =1/2) + geom_smooth() + labs(title = "Processing days vs savings") + labs(y = "Local DNAC", x = "Count processing days")  + facet_grid(member~.) + coord_cartesian(ylim = c(0, 1), xlim = c(0,60))
+      
+g <- ggplot(bidlog[bidlog$reason == "MINIBID",], aes(factor(num_players_over_5perc),localdn_savings_rate))
+#g + geom_point(color = "steelblue", size = 4, alpha =1/2) + geom_smooth() + facet_grid(member~.) + coord_cartesian(ylim = c(0, 1), xlim =c(0,50)) 
+g + geom_point(aes(color = reason), size = 4, alpha =1/2) + geom_smooth() + labs(title = "Processing days vs savings") + labs(y = "Local DNAC", x = "Count processing days")  + facet_grid(member~.) + coord_cartesian(ylim = c(0, 1), xlim = c(0,10))
+
+#change the base theme
+g <- ggplot(bidlog[bidlog$reason == "MINIBID",], aes(factor(num_players_over_5perc),localdn_savings_rate))
+g + geom_point(aes(color = reason), size = 4, alpha =1/2) + geom_smooth() + labs(title = "Processing days vs savings") + labs(y = "Local DNAC", x = "Count processing days")  + facet_grid(member~.) + coord_cartesian(ylim = c(0, 1), xlim = c(0,10)) + theme_bw(base_family = "Times")
 
 
+# cutpoints
+## calculate the deciles of the data
+cutpoint <- quantile(bidlog$localdn_savings_rate, seq(0,1, length = 4), na.rm = TRUE)
+
+## cut the data at the deciles and a create a new factor variable
+bidlog$f_savings <- cut(bidlog$localdn_savings_rate, cutpoint)
+levels(bidlog$f_savings)
