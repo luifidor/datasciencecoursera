@@ -222,6 +222,7 @@ xyplot(localdn_savings_rate  ~ count_processing_days  | factor(member) * factor(
 library(ggplot2)
 str(mpg)
 qplot (displ, hwy, data = mpg)
+qplot (displ, hwy, data = mpg) + geom_smooth()
 
 qplot(count_processing_days, localdn_savings_rate, data = bidlog[bidlog$reason == "MINIBID" & bidlog$count_processing_days <51 & bidlog$localdn_savings_rate < 1 & bidlog$localdn_savings_rate > 0,]
       , color = member)
