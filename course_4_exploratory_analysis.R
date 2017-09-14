@@ -278,3 +278,37 @@ cutpoint <- quantile(bidlog$localdn_savings_rate, seq(0,1, length = 4), na.rm = 
 ## cut the data at the deciles and a create a new factor variable
 bidlog$f_savings <- cut(bidlog$localdn_savings_rate, cutpoint)
 levels(bidlog$f_savings)
+
+
+# clustering
+set.seed(1234)
+par(mar = c(0,0,0,0))
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.2)
+y <- rnorm(12, mean = rep(c(1,2,1), each = 4), sd= 0.2)
+plot(x, y, col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character(1:12))
+
+reset_par()
+dataFrame <- data.frame (x=x, y=y)
+dist(dataFrame)
+distxy <- dist(dataFrame)
+hClustering <-hclust(distxy)
+plot(hClustering)
+
+hBidlog <- hclust(dist(bidlog[bidlog$reason == "MINIBID",c("contract_savings_rate","localdn_savings_rate")]))
+plot(hBidlog)
+
+heatmap(as.matrix(bidlog[bidlog$reason == "MINIBID", ]))
+
+d <- cut(as.dendrogram(hBidlog), h=0.4)
+plot(d)
+
+kmeansObj <- kmeans(bidlog[bidlog$reason == "MINIBID",c("contract_savings_rate","localdn_savings_rate")], centers = 3)
+hist(kmeansObj$cluster)
+plot(bidlog[bidlog$reason == "MINIBID",]$contract_savings_rate, bidlog[bidlog$reason == "MINIBID",]$contract_savings_rate, col = kmeansObj$cluster)
+points(kmeansObj$centers, col=1:3, pch = 3, cex = 3, lwd = 3)
+
+heatmap(as.matrix(bidlog[bidlog$reason == "MINIBID",c("contract_savings_rate","localdn_savings_rate")]))
+
+lm( data = bidlog[bidlog$reason == "MINIBID",], bidlog[bidlog$reason == "MINIBID",]count_processing_days, y=localdn_savings_rate)
+corr(x=bidlog[bidlog$reason == "MINIBID",]$count_processing_days, y=bidlog[bidlog$reason == "MINIBID",]$localdn_savings_rate)
