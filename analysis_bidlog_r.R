@@ -38,3 +38,68 @@ consolidated <- cbind(offer_lowest_allincost, diff = as.data.frame(diff), value 
 hist(value, breaks = 2000, xlim = c(0, 1e6))
 
 consolidated[order(-consolidated$value), c("offer_bid_id", "offer_snapshot", "offer_allindn_cost", "aw_allindn_cost", "value", "offer_vendor", "aw_vendor")]
+
+factor(bidlog$member)
+plot(factor(bidlog$member), log10(bidlog$localdn_savings_rate))
+
+library(ggplot2)
+q <-qplot(factor(bidlog$reason),log10(bidlog$localdn_savings_rate), alpha=I(0.1))
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+negative <- bidlog$localdn_savings_rate < 0
+mean(negative, na.rm = T)
+
+
+##
+## Analysis: Study how per year the median and mean savings have moved around with processing days
+##
+## - Get median localdn vector per year per reason
+## - Get median processing days per year per reason
+##
+
+r_to_consider <- c("MINIBID", "COMPETITIVE", "MINIBID_QUIET","NEW_OFFER")
+
+bidlog_reduce <- subset(bidlog, reason %in% r_to_consider & (member == "ABC" | member == "WAG"))
+
+competitive <- subset(bidlog, open_date_cy == 2017 & reason == "COMPETITIVE", localdn_savings_rate)
+summary (competitive)
+minibid <- subset(bidlog_reduce , open_date_cy == 2017 & reason == "MINIBID", localdn_savings_rate)
+summary (minibid)
+mean(minibid$localdn_savings_rate)
+
+ml15 <- with(bidlog_reduce[bidlog_reduce$open_date_cy == 2015, ], tapply(localdn_savings_rate, reason, median, na.rm = T))
+ml16 <- with(bidlog_reduce[bidlog_reduce$open_date_cy == 2016, ], tapply(localdn_savings_rate, reason, median, na.rm = T))
+ml17 <- with(bidlog_reduce[bidlog_reduce$open_date_cy == 2017, ], tapply(localdn_savings_rate, reason, median, na.rm = T))
+
+
+pd15 <- with(bidlog_reduce[bidlog_reduce$open_date_cy == 2015, ], tapply(count_processing_days, reason, median, na.rm = T))
+pd16 <- with(bidlog_reduce[bidlog_reduce$open_date_cy == 2016, ], tapply(count_processing_days, reason, median, na.rm = T))
+pd17 <- with(bidlog_reduce[bidlog_reduce$open_date_cy == 2017, ], tapply(count_processing_days, reason, median, na.rm = T))
+
+
+## it is not showing the data as I want it to be, there is an error somewhere
+par(mfrow = c(2,3), mar = c(5, 7.5, 2, 2))
+plot(pd15, ml15, pch = 19, xlim = c(0,100),ylim=c(0, 0.4), main = "2015", xlab = "Median Processing Days", ylab = "Median LocalDN Savings Rate")
+text(pd15 + 2 , ml15, names(pd15), cex =  0.8, pos = 3)
+plot(pd16, ml16, pch = 19, xlim = c(0,100),ylim=c(0, 0.4),main = "2016",  xlab = "Median Processing Days", ylab = "Median LocalDN Savings Rate")
+text(pd16 + 2, ml16,names(pd16), cex =  0.8, pos = 3)
+plot(pd17, ml17, pch = 19, xlim = c(0,100),ylim=c(0, 0.4), main = "2017", xlab = "Median Processing Days", ylab = "Median LocalDN Savings Rate")
+text(pd17+2, ml17,labels = names(ml17), cex =  0.8, pos = 3)
+
+## Count the number of occurances per reason
+library(data.table)
+bd <- data.table(bidlog_reduce)
+x <- bd[,.N, by = list(open_date_cy, reason)]
+x$label <- paste(x$open_date_cy, x$reason, sep = ".")
+
+## Extract the data ranges per year
+n15 <- subset(x[order(reason, open_date_cy),], open_date_cy == 2015)
+n16 <- subset(x[order(reason, open_date_cy),], open_date_cy == 2016)
+n17 <- subset(x[order(reason, open_date_cy),], open_date_cy == 2017)
+barplot(n15$N, names.arg = n15$reason, horiz=T, las = 2, xlim = c(0, 700), xlab = "Count of bids")
+barplot(n16$N, names.arg = n16$reason, horiz=T, las = 2, xlim = c(0, 700), xlab = "Count of bids")
+barplot(n17$N, names.arg = n17$reason, horiz=T, las = 2, xlim = c(0, 700), xlab = "Count of bids")
+
+install.packages ("plyr")
+library(plyr)
